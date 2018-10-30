@@ -7,6 +7,7 @@ defmodule Alpaca.Accounts do
   alias Alpaca.Repo
 
   alias Alpaca.Accounts.User
+  alias Alpaca.Accounts.Address
 
   @doc """
   Returns the list of users.
@@ -35,7 +36,9 @@ defmodule Alpaca.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id) do
+    Repo.get!(User, id) |> Repo.preload(:address)
+  end
 
   @doc """
   Creates a user.
@@ -49,10 +52,19 @@ defmodule Alpaca.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_user(attrs \\ %{}) do
-    %User{}
-    |> User.changeset(attrs)
-    |> Repo.insert()
+  def create_user(user_attrs \\ %{}, addr_attrs \\ %{}) do
+    Repo.transaction fn ->
+      {:ok, u} =
+        %User{}
+        |> User.changeset(user_attrs)
+        |> Repo.insert()
+
+      %Address{user_id: u.id}
+      |> Address.changeset(addr_attrs)
+      |> Repo.insert()
+
+      u
+    end
   end
 
   @doc """
@@ -102,7 +114,6 @@ defmodule Alpaca.Accounts do
     User.changeset(user, %{})
   end
 
-  alias Alpaca.Accounts.Address
 
   @doc """
   Returns the list of addresses.

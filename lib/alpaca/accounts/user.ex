@@ -1,6 +1,7 @@
 defmodule Alpaca.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Alpaca.Accounts.Address
 
 
   schema "users" do
@@ -8,6 +9,8 @@ defmodule Alpaca.Accounts.User do
     field :name, :string
 
     timestamps()
+
+    has_one :address, Address
   end
 
   @doc false
