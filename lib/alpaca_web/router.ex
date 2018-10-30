@@ -7,5 +7,7 @@ defmodule AlpacaWeb.Router do
 
   scope "/api", AlpacaWeb do
     pipe_through :api
+
+    resources "/users", UserController, except: [:new, :edit]
   end
 end
